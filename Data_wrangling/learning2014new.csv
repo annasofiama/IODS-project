@@ -1,0 +1,2 @@
+write.csv(learning2014new)
+read.csv(~/Git/IODS-project/data/learning2014new.csv)
