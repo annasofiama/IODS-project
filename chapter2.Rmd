@@ -1,13 +1,66 @@
-# Insert chapter 2 title here
+# RStudio Exercise 2: Analysis
 
-*Describe the work you have done this week and summarize your learning.*
+## Reading the data and exploring the dimensions and structure of the data
+```{r echo=TRUE}
+students2014new <- read.csv("~/Git/IODS-project/data/learning2014new2.csv", sep=",", header=TRUE)
+dim(students2014new)
+str(students2014new)
+```
+*Comments on the students2014new: Exploring the dimensions of the data reveals that the data has 166 rows/observations and 7 columns/variables. Looking at the structure of the data reveals the names of the variables: deep, age, attitude, strategic, surface, gender and points. This data is based on a survey assessing the relationship between learning approaches and student's achievements in an introductory statistics course. Variable 'deep' combines questions related to deep approach, variable 'strategic' questions related to strategic approach and variable 'surface' question related to surface approach'. Variable 'attitude' combines questions related to the attitude towards statistics. Variable 'gender' tells the gender of the student, variable 'age'the age in years and variable 'points' the exam points.*
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+## Showing a graphical overview of the data and showing summaries of the variables in the data
+```{r echo=TRUE}
+library(ggplot2)
+library (GGally)
+p <-ggpairs(students2014new, mapping=aes(col=gender), lower=list(combo = wrap("facethist", bins = 20)))
+p
+summary(students2014new)
+```
+### Describing and interpreting the outputs, commenting on the distributions of the variables and the relationships between them
+*The aim of this analysis is to assess the relationship between the different learning approaches and the exam points they achieved. The mean age of the students is 25,5, the youngest being 17 years old and the oldest 55 years old. There are more female students attending the course, making the gender distribution skewed. The distributions of some of the variables are quite close to normal distributions, for example the strategic and surface variables.There is a strong correlation between the attitude and points variables.*
 
-```{r}
-date()
+## Fitting a regression model: attitude, deep and strategic as explanatory variables and points as target variable
+```{r echo=TRUE}
+library(ggplot2)
+
+model_students2014new <- lm(formula = Points ~ attitude + deep + strategic, data = students2014new)
+```
+### Showing a summary of the model
+```{r echo=TRUE}
+summary(model_students2014new)
+```
+### Commenting the results:
+*Assessing the P values shows that variable attitude, given it's low P value, is statistically significant. The variable deep has the highest P value, so it is removed from the next model.*
+
+```{r echo=TRUE}
+model_students2014new <- lm(formula = Points ~ attitude + strategic, data = students2014new)
+summary(model_students2014new)
+```
+### Further comments:
+*The low P value of attitude indicates that there is a statistical relationship between variable attitude and points. In general, R-squared can be used when examining how well the model fits the data: it is the percentage of the response variable variation that is explained by a linear model. R-squared 0.2048 indicates that the model fits to this data quite poorly. The P value of variable strategic is > 0,05 indicating that it is not statistically significant and can be removed from the analysis*
+
+```{r echo=TRUE}
+model_students2014new <- lm(formula = Points ~ attitude, data = students2014new)
+summary(model_students2014new)
+```
+*Again, multiple R-squared, now 0.19, reveals that only 19% of the response variable variation that is explained by this model.*
+
+## Producing the diagnostic plots
+### Residuals vs Fitted values
+```{r echo=TRUE}
+plot(model_students2014new, which= c(1), par(mfrow = c(2,2)))
 ```
 
-Here we go again...
+### Normal QQ-plot
+```{r echo=TRUE}
+plot(model_students2014new, which= c(2), par(mfrow = c(3,3)))
+```
+
+### Residuals vs Leverage
+```{r echo=TRUE}
+plot(model_students2014new, which= c(5), par(mfrow = c(1,2)))
+```
+
+*The Residuals vs Fitted plot indicates that the errors are not correlated with the explanatory model. The Normal QQ plot shows that the model fits to the theoretical model quite well. The Residuals vs Leverage plot shows that there is no outlier in the plot.*
+
+
