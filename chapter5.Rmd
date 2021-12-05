@@ -1,0 +1,56 @@
+---
+title: "Exercise 5"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Graphical overview of the data and summaries of the variables
+
+```{r echo=FALSE}
+library(GGally)
+library(ggplot2)
+library(corrplot)
+library(dplyr)
+library(tidyr)
+```
+
+```{r echo=TRUE}
+human <- read.table("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/human2.txt", sep  =",", header = T)
+str(human)
+summary(human)
+```
+
+```{r echo=TRUE}
+ggpairs(human)
+cor(human)%>% corrplot
+```
+
+*There are 155 observations and 8 variables. You can find more information about the variables here: https://raw.githubusercontent.com/TuomoNieminen/Helsinki-Open-Data-Science/master/datasets/human_meta.txt*
+*Many of the variables seem to be normally distributed while for example Mat.Mor and GNI are not. There is a strong negative correlation between the variables 'Life.Exp' and 'Mat.Mor' and strong positive correlation between the variables 'Life.Exp' and 'Edu.Exp'*
+
+## Perform principal component analysis (PCA)
+```{r echo=TRUE}
+pcahuman <- prcomp(human)
+summarypcahuman <- summary(pcahuman)
+summarypcahuman
+```
+*PC1 seems to explain nearly all of the variance.*
+```{r echo=TRUE}
+biplot(pcahuman, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+```
+
+## Standardize the variables and repeat the above analysis
+```{r echo=TRUE}
+humanstd <- scale(human)
+pcahumanstd <- prcomp(humanstd)
+s_humanstd <- summary(pcahumanstd)
+s_humanstd
+pca_pr <- round(100*s_humanstd$importance[2, ], digits = 1)
+pca_lab <- paste0(names(pca_pr), " (", pca_pr, "%)")
+biplot(pcahumanstd, choices = 1:2, cex = c(0.6, 1), col = c("grey40", "deeppink2"), xlab = pca_lab[1], ylab = pca_lab[2])
+```
+
+*Unfortunately, I ran out of time this week and couldn't finish the exercise.*
